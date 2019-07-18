@@ -1,0 +1,81 @@
+{
+  "apiServer、dataServer参数定义": "=====================",
+
+  "apiServer监听的端口": "监听Restful HTTP请求",
+  "apiServerPort": 32000,
+
+  "dataServer监听的端口": "监听Restful HTTP请求",
+  "dataServerPort": 33000,
+
+  "数据节点心跳间隔": "单位是秒",
+  "heartbeatInterval": 1,
+
+  "判断数据节点心跳超时阈值": "单位是秒",
+  "heartbeatOverTime": 20,
+
+  "数据节点默认的权重": "用于构建一致性哈希环（权重越大，数据读写将越多分配至此）",
+  "dataServerWeight": 1,
+
+  "数据节点在哈希环上默认的虚拟cube数": "数据节点总的虚拟cube数为：defaultVirtualCubes*权重",
+  "defaultVirtualCubes": 128,
+
+  "聚合对象的大小": "对于小于该值的文件，数据将会被填充至聚合对象，对应于淘宝TFS中chunk的概念（单位是MB）",
+  "aggregateObjSize": 64,
+
+
+  "纠删码的参数定义": "=====================================",
+
+  "数据分片的数量": "",
+  "dataShards": 4,
+
+  "修复分片的数量": "",
+  "parityShards": 2,
+
+  "按照批次每批读到buffer中的size": "单位是字节",
+  "blockPerShard": 8000,
+
+
+  "rabbitMQ参数定义": "=======================================",
+
+  "rabbitMQ连接地址": "rbmq://用户名:密码@192.168.1.91:5672",
+  "rabbitMQUrl": "rbmq://test:test@192.168.1.91:5672",
+
+  "发送心跳信息的交换机类型": "",
+  "exchangeType": "fanout",
+
+  "发送心跳信息的交换机名称": "",
+  "heartbeatExchange": "doss.heartbeat",
+
+
+  "MongoDB参数定义": "=======================================",
+
+  "mongodb地址": "须采用ReplicaSet方式部署",
+  "mongodbUrl": "mongodb://192.168.1.94:27017,192.168.1.95:27017,192.168.1.96:27017",
+
+  "mongodb连接超时时间": "单位是秒",
+  "mongoConnectTimeout": 5,
+
+  "连接的数据库名": "",
+  "databaseName": "doss_meta",
+
+  "对象元数据的集合名": "",
+  "objectColName": "object",
+
+  "聚合对象元数据的集合名": "",
+  "aggregateObjColName": "aggregate_object",
+
+  "对象分片元数据的集合名": "",
+  "objShardColName": "mini_object_shard",
+
+  "待修复对象元数据的集合名": "",
+  "repairObjColName": "repair_object",
+
+  "数据节点的集合名": "",
+  "nodeColName": "node",
+
+
+  "其他参数定义": "=======================================",
+
+  "JWT生成加密token的密钥": "",
+  "jwtJwtSecretKey": "e77905f1028496es23lg9477040342a6"
+}
