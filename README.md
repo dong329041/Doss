@@ -16,11 +16,11 @@
 
 1. 若文件 size 小于 64MB，则访问小对象接口，将小对象写到大的聚合对象内部（聚合对象可类比于 GFS 或淘宝 TFS 中的 chunk 概念）：
 
-> 为什么要有小文件合并：在进行 1 亿海量小文件压测时，发现写到 6000 万个小文件时性能下降剧烈，原因在于：每写一个小文件，xfs 文件系统都要调用 xfsaild 系统调用写日志，从而占据了磁盘的 I/O，导致小文件的读写 I/O 受到影响，HDD盘的性能波动特别大，而且小文件数量过多也会过多占据文件系统的 inode；
+> 为什么要有小文件合并：在进行 1 亿海量小文件压测时，发现写到 6000 万个小文件时性能下降剧烈，原因在于：每写一个小文件，xfs 文件系统都要调用 xfsaild 系统调用写日志，从而占据了磁盘的 I/O，导致小文件的读写 I/O 受到影响，HDD 盘的性能波动特别大，而且小文件数量过多也会过多占据文件系统的 inode；
 
 > 实现过程：聚合对象的长度固定为 64MB，在上传小对象时，先获取未满的聚合对象，若不存在未满的聚合对象或者获取到的聚合对象剩余容量不够，则生成新的聚合对象，然后将小对象写到其附着的所有聚合对象上（按照 offset 和 size 界定其在聚合对象上占据的字节区间）；那么小对象的读取则将它所附着的聚合对象上根据 offset 和 size 来获取数据；
 
-> 如何解决多 apiServer 同时写，访问同一个聚合对象产生的数据区间冲突：每个 apiServer 在上传数据之前先更新数据库 aggregate_object 表，发现可用的聚合对象后将空间预定抢占，其他的 apiServer 则预定后面的空间，该操作通过 MongoDB 的FindOneAndUpdate 来保证写操作的原子性，抢占完成后自己慢慢将数据推送到所占据的空间；若上传过程了发生了数据损坏，后期的纠删码实时修复会保证数据的正确性；
+> 如何解决多 apiServer 同时写，访问同一个聚合对象产生的数据区间冲突：每个 apiServer 在上传数据之前先更新数据库 aggregate_object 表，发现可用的聚合对象后将空间预定抢占，其他的 apiServer 则预定后面的空间，该操作通过 MongoDB 的 FindOneAndUpdate 来保证写操作的原子性，抢占完成后自己慢慢将数据推送到所占据的空间；若上传过程了发生了数据损坏，后期的纠删码实时修复会保证数据的正确性；
 
 2. 若文件 size 大于 64MB，则访问大对象接口：大对象上传时可向 apiServer 的 /object 接口发送 POST 请求得到一个加密的 token ，该 token 可用于断点续传，从而抵御不良的网络环境，该 token 中包含了对象 name、size、hash 值等信息，当发生网络中断时，可从该 token 中恢复数据流继续上传；
 3. 小文件聚合的概念对于 apiServer 是无感知的，由 dataServer 全权负责。
@@ -101,17 +101,17 @@
 
 此包主要定义系统中所用到的工具类函数：
 
-1. addr.go：获取 rabbitMq、MongoDB 的 url 地址，获取本机网卡地址等；
-2. nullWriter.go：实现一个黑洞设备文件（类似于 Linux 的 /dev/null 设备），实现过程大致为：定义 NullWriter 结构体，为该结构体实现 io.Writer 接口，在 Write 方法中开辟 buffer 缓冲区，将数据一批一批读入内存并丢弃；
-3. parseHeader.go：对 HTTP 请求中解析出 hash、size、offset 等信息；
-4. watchFilePath.go：实现了监控指定目录文件的变化函数：
+1. **addr.go**：获取 rabbitMq、MongoDB 的 url 地址，获取本机网卡地址等；
+2. **nullWriter.go**：实现一个黑洞设备文件（类似于 Linux 的 /dev/null 设备），实现过程大致为：定义 NullWriter 结构体，为该结构体实现 io.Writer 接口，在 Write 方法中开辟 buffer 缓冲区，将数据一批一批读入内存并丢弃；
+3. **parseHeader.go**：对 HTTP 请求中解析出 hash、size、offset 等信息；
+4. **watchFilePath.go**：实现了监控指定目录文件的变化函数：
 
 > 实现原理：使用的是 Linux 系统的 inotify 机制和 windows 的 ReadDirectoryChangesW；
 
 > 函数防抖处理：当目录下文件发生改变时，将该事件收集到数组中，启动定时器5秒，若5秒内再次发生变化，则继续将该事件 append 到数组中，并将定时器重置……直至5秒内没有再发生变化，将发生的所有事件传递给外部的回调函数；
 
 > 对外提供 GetStopWatchSignal 函数用于获取停止监控信号的通道，外部获取到的是该包内 stopWatchSignal 的地址，向此通道中放入一个 bool 值，则可结束监听；
-5. utils.go：其他工具函数，如：SeekWrite 和 SeekCopy（可以指定偏移量和读取量来读写文件）、流式计算哈希值、判断 slice 中是否包含指定元素等等。
+5. **utils.go**：其他工具函数，如：SeekWrite 和 SeekCopy（可以指定偏移量和读取量来读写文件）、流式计算哈希值、判断 slice 中是否包含指定元素等等。
 
 ### common 包
 
