@@ -1,6 +1,6 @@
 # Doss
 
-该程序实现了一个分布式对象存储系统的底层引擎，为上层客户端应用提供底层存储能力。整体架构由 apiServer 和 dataServer 组成，apiServer 之间、dataServer 之间完全对等，可以无限扩展，避免单点故障。apiServer 对外提供 Restful HTTP 接口接收客户端请求，并和 dataServer 之间进行交互完成数据访问（可以部署多台 apiServer，上层使用 nginx 做负载均衡）。下面对该系统特性进行简单介绍：
+该软件实现了一个分布式对象存储系统的底层引擎，为上层客户端应用提供底层存储能力。整体架构由 apiServer 和 dataServer 组成，apiServer 之间、dataServer 之间完全对等，可以无限扩展，避免单点故障。apiServer 对外提供 Restful HTTP 接口接收客户端请求，并和 dataServer 之间进行交互完成数据访问（可以部署多台 apiServer，上层使用 nginx 做负载均衡）。下面对该系统特性进行简单介绍：
 
 ### 数据定位
 
